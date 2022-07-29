@@ -70,11 +70,8 @@ jobs:
 
       - name: Dokka
         uses: gradle/gradle-build-action@v2.2.1
-#        if: |
-#          !contains(steps.version.outputs.arrow, 'alpha') &&
-#          !contains(steps.version.outputs.arrow, 'beta') &&
-#          !contains(steps.version.outputs.arrow, 'rc')
-        run: cleanDocs dokkaHtml
+        with:
+          arguments: cleanDocs dokkaHtml
 
       - name: Push
         run: |
