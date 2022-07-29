@@ -1,6 +1,8 @@
 package arrow.continuations
 
 import arrow.continuations.unsafe.Unsafe
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -8,23 +10,20 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
 
 /**
  * # Module SuspendApp
  *
- * # Rationale
- * When building applications that require graceful shutdown it typically requires us to
- * write a bunch of platform specific code.
- * This library offers a common API to write such applications targeting the JVM, Native or NodeJS.
+ * # Rationale When building applications that require graceful shutdown it typically requires us to
+ * write a bunch of platform specific code. This library offers a common API to write such
+ * applications targeting the JVM, Native or NodeJS.
  *
  * ## SuspendApp
  *
- * SuspendApp allows for building applications that leverage `CoroutineScope`,
- * and structured concurrency as a way of reasoning about resource-safety.
- * When we're writing apps that need to be able to _gracefully shutdown_,
- * then you want your resource handlers to run on SIGTERM, SIGINT or JVM Shutdown.
+ * SuspendApp allows for building applications that leverage `CoroutineScope`, and structured
+ * concurrency as a way of reasoning about resource-safety. When we're writing apps that need to be
+ * able to _gracefully shutdown_, then you want your resource handlers to run on SIGTERM, SIGINT or
+ * JVM Shutdown.
  *
  * Let's look at some examples.
  *
@@ -57,29 +56,21 @@ import kotlin.time.Duration
  * Process finished with exit code 130 (interrupted by signal 2: SIGINT)
  * ```
  *
- * # SuspendApp with Arrow Fx Resource
- * TODO
+ * # SuspendApp with Arrow Fx Resource TODO
  *
- * ## SuspendApp with Arrow Fx Resource, Ktor & K8s
- * TODO
+ * ## SuspendApp with Arrow Fx Resource, Ktor & K8s TODO
  *
- * ## SuspendApp with Kotlin-Kafka
- * TODO
+ * ## SuspendApp with Kotlin-Kafka TODO
  */
 fun SuspendApp(
   context: CoroutineContext = Dispatchers.Default,
   timeout: Duration = Duration.INFINITE,
   block: suspend CoroutineScope.() -> Unit,
-): Unit = Unsafe.runCoroutineScope(context) {
-  val job: Job = launch(context = context, start = CoroutineStart.LAZY) {
-    block()
+): Unit =
+  Unsafe.runCoroutineScope(context) {
+    val job: Job = launch(context = context, start = CoroutineStart.LAZY) { block() }
+    val unregister: () -> Unit = Unsafe.onShutdown { withTimeout(timeout) { job.cancelAndJoin() } }
+    job.start()
+    job.join()
+    unregister()
   }
-  val unregister: () -> Unit = Unsafe.onShutdown {
-    withTimeout(timeout) {
-      job.cancelAndJoin()
-    }
-  }
-  job.start()
-  job.join()
-  unregister()
-}

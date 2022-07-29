@@ -3,6 +3,8 @@ plugins {
   kotlin("multiplatform") version "1.7.10"
   alias(libs.plugins.dokka)
   alias(libs.plugins.kotlin.binaryCompatibilityValidator)
+  alias(libs.plugins.arrowGradleConfig.formatter)
+  alias(libs.plugins.arrowGradleConfig.publish)
   alias(libs.plugins.arrowGradleConfig.nexus)
   alias(libs.plugins.arrowGradleConfig.versioning)
 }
