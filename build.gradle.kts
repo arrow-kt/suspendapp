@@ -74,7 +74,7 @@ tasks {
           suppress.set(true)
         }
         sourceLink {
-          localDirectory.set(file("src/main/kotlin"))
+          localDirectory.set(file("src/commonMain/kotlin"))
           remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
           remoteLineSuffix.set("#L")
         }
