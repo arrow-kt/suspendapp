@@ -1,4 +1,4 @@
-# Module SuspendApp
+# Module suspendapp
 
 # Rationale
 

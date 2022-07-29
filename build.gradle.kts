@@ -1,3 +1,6 @@
+import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   kotlin("multiplatform") version "1.7.10"
@@ -11,6 +14,11 @@ plugins {
 
 repositories {
   mavenCentral()
+}
+
+allprojects {
+  group = property("projects.group").toString()
+  extra.set("dokka.outputDirectory", rootDir.resolve("docs"))
 }
 
 kotlin {
@@ -51,5 +59,36 @@ kotlin {
       macosArm64Main.dependsOn(this)
       macosX64Main.dependsOn(this)
     }
+  }
+}
+
+tasks {
+  withType<DokkaTask>().configureEach {
+    outputDirectory.set(rootDir.resolve("docs"))
+    moduleName.set("suspendapp")
+    dokkaSourceSets {
+      named("commonMain") {
+        includes.from("README.md")
+        perPackageOption {
+          matchingRegex.set(".*\\.unsafe.*")
+          suppress.set(true)
+        }
+        sourceLink {
+          localDirectory.set(file("src/main/kotlin"))
+          remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
+          remoteLineSuffix.set("#L")
+        }
+      }
+    }
+  }
+  
+  withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+  }
+  
+  register<Delete>("cleanDocs") {
+    val folder = file("docs").also { it.mkdir() }
+    val docsContent = folder.listFiles().filter { it != folder }
+    delete(docsContent)
   }
 }
