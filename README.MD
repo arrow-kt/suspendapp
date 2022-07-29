@@ -12,6 +12,16 @@ Currently supported targets:
  - Windows (MingwX64)
  - Linux
 
+# Gradle setup
+
+[![Maven Central](https://img.shields.io/maven-central/v/io.arrow-kt/suspendapp?color=4caf50&label=latest%20release)](https://maven-badges.herokuapp.com/maven-central/io.arrow-kt/suspendapp)
+
+```kotlin
+dependencies {
+  implementation("io.arrow-kt:suspendapp:_")
+}
+```
+
 ## Running and testing apps
 
 Just `./gradlew build` the project, and launch the created binaries as shown in the sections belows.
