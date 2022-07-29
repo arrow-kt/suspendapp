@@ -14,9 +14,32 @@ Currently supported targets:
 
 ## Running and testing apps
 
-Just build the project, and launch the created binaries as shown below.
-If you see `App Started! Waiting until asked to shutdown.` try pressing `ctrl+C` to signal interuption to the process.
+Just `./gradlew build` the project, and launch the created binaries as shown in the sections belows.
+
+If you see `App Started! Waiting until asked to shutdown.` try pressing `ctrl+C` to signal interruption (`SIGINT`) to the process.
 You can also use `ps -ax` to find the `PID` and call `kill PID` to send a `SIGTERM` event to the process.
+
+```kotlin
+import arrow.continuations.SuspendApp
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+
+fun main() = SuspendApp {
+  try {
+    println("App Started!  Waiting until asked to shutdown.")
+    while (true) {
+      delay(2_500)
+      println("Ping")
+    }
+  } catch (e: CancellationException) {
+    println("Cleaning up App... will take 10 seconds...")
+    withContext(NonCancellable) { delay(10_000) }
+    println("Done cleaning up. Will release app to exit")
+  }
+}
+```
 
 ### Node App
 

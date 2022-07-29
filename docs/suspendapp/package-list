@@ -1,0 +1,8 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:arrow.continuations.unsafe////PointingToDeclaration/suspendapp/arrow.continuations.unsafe.html
+$dokka.location:arrow.continuations////PointingToDeclaration/suspendapp/arrow.continuations/index.html
+$dokka.location:arrow.continuations//SuspendApp/#kotlin.coroutines.CoroutineContext#kotlin.time.Duration#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/suspendapp/arrow.continuations/-suspend-app.html
+arrow.continuations
+arrow.continuations.unsafe
+

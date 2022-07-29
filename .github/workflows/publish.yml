@@ -67,17 +67,3 @@ jobs:
           !contains(steps.version.outputs.arrow, 'rc')
         with:
           arguments: --full-stacktrace publishToSonatype closeSonatypeStagingRepository
-
-      - name: Dokka
-        uses: gradle/gradle-build-action@v2.2.1
-        with:
-          arguments: cleanDocs dokkaHtml
-
-      - name: Push
-        run: |
-          git add .
-          git commit -m "Auto update docs"
-          git push
-
-      - name: Stop Gradle daemons
-        run: ./gradlew --stop
