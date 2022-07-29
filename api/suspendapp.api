@@ -1,0 +1,11 @@
+public final class arrow/continuations/SuspendAppKt {
+	public static final fun SuspendApp-8Mi8wO0 (Lkotlin/coroutines/CoroutineContext;JLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun SuspendApp-8Mi8wO0$default (Lkotlin/coroutines/CoroutineContext;JLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+}
+
+public final class arrow/continuations/unsafe/Unsafe {
+	public static final field INSTANCE Larrow/continuations/unsafe/Unsafe;
+	public final fun onShutdown (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function0;
+	public final fun runCoroutineScope (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)V
+}
+

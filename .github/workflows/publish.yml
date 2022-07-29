@@ -1,0 +1,68 @@
+name: "Publish"
+
+on:
+  push:
+    tags:
+      - '**'
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.jvmargs="-Xmx5g -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+  SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+  SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
+  ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
+  ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+  OSS_USER: '${{ secrets.OSS_USER }}'
+  OSS_TOKEN: '${{ secrets.OSS_TOKEN }}'
+  OSS_STAGING_PROFILE_ID: '${{ secrets.OSS_STAGING_PROFILE_ID }}'
+  SIGNING_KEY_NAME: '${{ secrets.SIGNING_KEY_NAME }}'
+  SIGNING_KEY_ID: '${{ secrets.SIGNING_KEY_ID }}'
+  SIGNING_KEY_PASSPHRASE: '${{ secrets.SIGNING_KEY_PASSPHRASE }}'
+  SIGNING_KEY: '${{ secrets.SIGNING_KEY }}'
+
+jobs:
+  publish:
+    timeout-minutes: 150
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3.4.0
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2.2.1
+        with:
+          arguments: build --full-stacktrace
+
+      - name: Get Arrow version
+        id: version
+        run: echo "::set-output name=arrow::$(head -n 1 build/semver/version.txt)"
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: 'reports-${{ matrix.os }}'
+          path: '**/build/reports/**'
+
+      - name: Publish alpha/beta/rc version
+        uses: gradle/gradle-build-action@v2.2.1
+        if: |
+          contains(steps.version.outputs.arrow, 'alpha') ||
+          contains(steps.version.outputs.arrow, 'beta') ||
+          contains(steps.version.outputs.arrow, 'rc')
+        with:
+          arguments: --full-stacktrace publishToSonatype closeAndReleaseSonatypeStagingRepository
+
+      - name: Publish final version
+        uses: gradle/gradle-build-action@v2.2.1
+        if: |
+          !contains(steps.version.outputs.arrow, 'alpha') &&
+          !contains(steps.version.outputs.arrow, 'beta') &&
+          !contains(steps.version.outputs.arrow, 'rc')
+        with:
+          arguments: --full-stacktrace publishToSonatype closeSonatypeStagingRepository
