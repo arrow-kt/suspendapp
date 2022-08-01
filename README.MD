@@ -87,7 +87,8 @@ fun main() = SuspendApp {
 ```
 
 In the example above we have a `Resource` that during _acquisition_ will print `Creating some resource`,
-when the `Resource` needs to be closed, _release_, we print the `ExitCase` with which the `Resource` was closed, and then
+when the `Resource` needs to be closed, _release_, we print the `ExitCase` with which the `Resource` was closed, and
+then
 we wait for 10 seconds. The `Resource` already takes care of calling `release` on a `NonCancelable` context.
 
 We consume the `Resource` until our `App` is cancelled by calling `awaitCancellation` from KotlinX Coroutines.
@@ -105,7 +106,105 @@ You can find this example in the `example` module, currently setup for NodeJS an
 
 ## SuspendApp with Ktor on Kubernetes
 
+When we're working with Kubernetes we often need to
+support [Graceful Shutdown](https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace)
+.
+Kubernetes sends `SIGTERM` to our _Pod_ to signal it needs to gracefully shutdown.
+However, there is an issue which doesn't allow us to immediately shutdown when we receive `SIGTERM` from Kubernetes.
+
+Our pod can still receive traffic **after** `SIGTERM`, so we need to apply additional back-pressure to delay graceful
+shutdown.
+More information on this can be found in this blog by [Phil Pearl](https://philpearl.github.io/post/k8s_ingress/),
+and on [learnk8s.io](https://learnk8s.io/graceful-shutdown).
+
+Let's see an example of how we could solve this using `SuspendApp` and `Resource` for [Ktor](https://ktor.io).
+Below we define a `Resource` for a Ktor `ApplicationEngine`, this represents the _Engine_ running an `Application` for
+example `Netty`.
+For simplicity, the example omits additional configuration parameters such as `host`, `port`, etc. and uses Ktor's
+defaults instead.
+
+When our `release` function of our `ApplicationEngine` is called we first wait for `30.seconds`,
+this gives Kubernetes enough time to do all its network management before we shut down.
+After this _grace_ period for K8S, we shut down the Netty engine gracefully.
+
+```kotlin
+fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> server(
+  factory: ApplicationEngineFactory<TEngine, TConfiguration>
+): Resource<ApplicationEngine> =
+  Resource(
+    acquire = { embeddedServer(factory, module = {}).also(ApplicationEngine::start) },
+    release = { engine, _ ->
+      delay(30.seconds)
+      engine.environment.log.info("Shutting down HTTP server...")
+      engine.stop(5.seconds, 10.seconds)
+      engine.environment.log.info("HTTP server shutdown!")
+    })
+```
+
+Given this `Resource` definition of a Ktor server, with support for gracefully shutting down for K8S we can define
+a `SuspendApp`.
+
+```kotlin
+fun main() = SuspendApp {
+  resource {
+    val engine = server(Netty).bind()
+    engine.application.routing {
+      get("/ping") {
+        call.respond("pong")
+      }
+    }
+  }.use { awaitCancellation() }
+}
+```
+
+We also use `awaitCancellation` here to _await_ `SIGTERM`, `SIGINT` or other shutdown hooks,
+and we let the `server` `Resource` back-pressure closing the application for K8s.
+
 ## SuspendApp with Kafka
+
+Gracefully shutting down is also often needed with other applications, beside K8S.
+It can be useful in all kinds of applications that need to execute some code before getting shutdown.
+
+Kafka for example, when streaming _records_ from Kafka we need to _commit_ (acknowledge) the offset of the _records_
+we've processed.
+The official recommendation for doing this is committing offsets in batches, so we typically don't send the commit event
+to Kafka for every processed record.
+Instead, we commit the offset every 5 seconds (or every x records, 5s is default).
+
+Imagine the application getting stopped after 4,5 seconds, either by `ctrl+c` or `K8S` or another type of
+containerization.
+We could've processed thousands, or tens of thousands of events.
+If we don't commit these offsets before shutting down we'd have to re-process all the events.
+
+We can easily prevent this with `SuspendApp`, and [kotlin-kafka](https://github.com/nomisRev/kotlin-kafka)
+or [reactor-kafka](https://github.com/reactor/reactor-kafka).
+Both these high-level Kafka libraries guarantee committing offsets upon termination of the stream, this includes
+cancellation!
+In the example below, all calls to `acknowledge` will be committed to Kafka before the `SuspendApp` terminates when
+receiving `SIGTERM` or `SIGINT`.
+
+```kotlin
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import org.apache.kafka.common.serialization.StringDeserializer
+import io.github.nomisRev.kafka.receiver.KafkaReceiver
+import io.github.nomisRev.kafka.receiver.ReceiverSettings
+import arrow.continuations.SuspendApp
+
+fun main() = SuspendApp {
+  val settings: ReceiverSettings<Nothing, String> = ReceiverSettings(
+    bootstrapServers = kafka.bootstrapServers,
+    groupId = "group-id",
+    valueDeserializer = StringDeserializer()
+  )
+  KafkaReceiver(settings)
+    .receive(topicName)
+    .map { record ->
+      println("${record.key()} -> ${record.value()}")
+      record.offset.acknowledge()
+    }.collect()
+}
+```
 
 ## Running SuspendApp applications on different platforms
 
