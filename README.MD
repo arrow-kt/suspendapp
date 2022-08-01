@@ -10,9 +10,9 @@ dependencies {
 
 ## Rationale
 
-When building applications that require graceful shutdown it typically requires us to write a bunch of platform specific
+When building applications that require graceful shutdown it typically requires us to write a lot of platform-specific
 code.
-This library aims to solve that problem leveraging for Kotlin MPP using KotlinX Coroutines, and Structured Concurrency.
+This library aims to solve that problem by leveraging Kotlin MPP using KotlinX Coroutines, and Structured Concurrency.
 
 Currently supported targets:
 
@@ -25,7 +25,7 @@ Currently supported targets:
 SuspendApp currently does not support any mobile or browser targets because it does not make sense to have such
 application behavior on such platforms. If you have a use-case for this please open a ticket!
 
-Let's see some simple example that more clearly demonstrate the rationale for SuspendApp.
+Let's see some simple examples that more clearly demonstrate the rationale for SuspendApp.
 
 ## Simple example
 
