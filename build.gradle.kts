@@ -92,3 +92,7 @@ tasks {
     delete(docsContent)
   }
 }
+
+apiValidation {
+  ignoredProjects.add("example")
+}
