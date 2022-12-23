@@ -38,8 +38,8 @@ fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configurati
   host: String = "0.0.0.0",
   configure: TConfiguration.() -> Unit = {},
   preWait: Duration = 30.seconds,
-  grace: Duration = 1.seconds,
-  timeout: Duration = 5.seconds,
+  grace: Duration = 500.milliseconds
+  timeout: Duration = 500.milliseconds,
   module: suspend Application.() -> Unit = {},
 ): Resource<ApplicationEngine> =
   Resource(
