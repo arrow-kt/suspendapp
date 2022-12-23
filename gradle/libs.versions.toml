@@ -5,10 +5,15 @@ dokka = "1.7.20"
 arrowGradleConfig = "0.10.1"
 kotlinBinaryCompatibilityValidator = "0.12.1"
 knit = "0.4.0"
+ktor = "2.2.1"
+arrow = "1.1.3"
 
 [libraries]
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-knit = { module = "org.jetbrains.kotlinx:kotlinx-knit", version.ref = "knit" }
+ktor-core = {module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor"}
+ktor-netty = {module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor"}
+arrow-fx = {module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow"}
 
 [plugins]
 arrowGradleConfig-formatter = { id = "io.arrow-kt.arrow-gradle-config-formatter", version.ref = "arrowGradleConfig" }
@@ -17,5 +22,6 @@ arrowGradleConfig-publish = { id = "io.arrow-kt.arrow-gradle-config-publish", ve
 arrowGradleConfig-versioning = { id = "io.arrow-kt.arrow-gradle-config-versioning", version.ref = "arrowGradleConfig" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinBinaryCompatibilityValidator" }
 kotlinx-knit = { id = "org.jetbrains.kotlinx.knit", version.ref = "knit" }
