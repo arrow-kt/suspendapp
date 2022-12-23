@@ -4,8 +4,8 @@ import arrow.fx.coroutines.Resource
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
 /**
@@ -38,7 +38,7 @@ fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configurati
   host: String = "0.0.0.0",
   configure: TConfiguration.() -> Unit = {},
   preWait: Duration = 30.seconds,
-  grace: Duration = 500.milliseconds
+  grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds,
   module: suspend Application.() -> Unit = {},
 ): Resource<ApplicationEngine> =
