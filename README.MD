@@ -104,9 +104,12 @@ Shutdown finished
 
 You can find this example in the `example` module, currently setup for NodeJS and native targets.
 
-## SuspendApp with Ktor on Kubernetes
+## SuspendApp with Ktor
 
-When we're working with Kubernetes we often need to
+There are some cases where it is convenient to gracefully shutdown a `Ktor` server. Basically, it is about giving some
+time to the server to finish some pending processing before turning it off.
+
+Kubernetes is a good example of this need. When we're working with Kubernetes we often need to
 support [Graceful Shutdown](https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace)
 .
 Kubernetes sends `SIGTERM` to our _Pod_ to signal it needs to gracefully shutdown.
@@ -117,29 +120,14 @@ shutdown.
 More information on this can be found in this blog by [Phil Pearl](https://philpearl.github.io/post/k8s_ingress/),
 and on [learnk8s.io](https://learnk8s.io/graceful-shutdown).
 
-Let's see an example of how we could solve this using `SuspendApp` and `Resource` for [Ktor](https://ktor.io).
-Below we define a `Resource` for a Ktor `ApplicationEngine`, this represents the _Engine_ running an `Application` for
-example `Netty`.
-For simplicity, the example omits additional configuration parameters such as `host`, `port`, etc. and uses Ktor's
-defaults instead.
+The module `suspendapp-ktor` provides a `server` constructor that lifts the Ktor `ApplicationEngine` in to a `Resource`, 
+representing the _Engine_ running an `Application`(i.e `Netty`).
 
-When our `release` function of our `ApplicationEngine` is called we first wait for `30.seconds`,
-this gives Kubernetes enough time to do all its network management before we shut down.
-After this _grace_ period for K8S, we shut down the Netty engine gracefully.
-
-```kotlin
-fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> server(
-  factory: ApplicationEngineFactory<TEngine, TConfiguration>
-): Resource<ApplicationEngine> =
-  Resource(
-    acquire = { embeddedServer(factory, module = {}).also(ApplicationEngine::start) },
-    release = { engine, _ ->
-      delay(30.seconds)
-      engine.environment.log.info("Shutting down HTTP server...")
-      engine.stop(5.seconds, 10.seconds)
-      engine.environment.log.info("HTTP server shutdown!")
-    })
-```
+When our `release` function of our `ApplicationEngine` is called, there is a `wait` period before the beginning of the stop 
+process (defaulted to `30.seconds`), this gives Kubernetes enough time to do all its network management before we shut down.
+Two more parameters are available: `grace` which set the number of seconds during which already inflight requests are 
+allowed to continue before the shutdown process begins, and `timeout` which set the number of seconds after which the 
+server will be forceably shutdown..
 
 Given this `Resource` definition of a Ktor server, with support for gracefully shutting down for K8S we can define
 a `SuspendApp`.
