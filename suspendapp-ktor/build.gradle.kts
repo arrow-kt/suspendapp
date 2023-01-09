@@ -19,12 +19,7 @@ kotlin {
       kotlinOptions.jvmTarget = "1.8"
     }
   }
-  js(IR) {
-    nodejs()
-  }
-  
   linuxX64()
-  mingwX64()
   macosArm64()
   macosX64()
   
@@ -38,15 +33,12 @@ kotlin {
     }
     
     val jvmMain by getting
-    val jsMain by getting
-    val mingwX64Main by getting
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
     
     create("nativeMain") {
       dependsOn(commonMain)
-      mingwX64Main.dependsOn(this)
       linuxX64Main.dependsOn(this)
       macosArm64Main.dependsOn(this)
       macosX64Main.dependsOn(this)
