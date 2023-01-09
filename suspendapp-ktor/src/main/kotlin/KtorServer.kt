@@ -32,7 +32,9 @@ import kotlinx.coroutines.delay
  *
  * @param module Represents configured and running web application, capable of handling requests.
  */
-fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> server(
+suspend fun <
+  TEngine : ApplicationEngine,
+  TConfiguration : ApplicationEngine.Configuration> ResourceScope.server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   port: Int = 80,
   host: String = "0.0.0.0",
@@ -40,8 +42,8 @@ fun <TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configurati
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds,
-  module: suspend Application.() -> Unit = {},
-): Resource<ApplicationEngine> =
+  module: suspend Application.() -> Unit = {}
+): ApplicationEngine =
   Resource(
     acquire = {
       embeddedServer(factory, host = host, port = port, configure = configure) {}.apply {
