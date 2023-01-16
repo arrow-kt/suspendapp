@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-  kotlin("multiplatform") version "1.7.22"
+  alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.dokka)
   alias(libs.plugins.kotlin.binaryCompatibilityValidator)
   alias(libs.plugins.arrowGradleConfig.formatter)
