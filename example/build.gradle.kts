@@ -32,7 +32,7 @@ kotlin {
     val commonMain by getting {
       dependencies {
         implementation(project.rootProject)
-        implementation("io.arrow-kt:arrow-fx-coroutines:1.1.3")
+        implementation("io.arrow-kt:arrow-fx-coroutines:1.1.5")
       }
     }
     
