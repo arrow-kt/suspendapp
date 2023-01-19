@@ -1,6 +1,7 @@
 package arrow.continuations.ktor
 
 import arrow.fx.coroutines.Resource
+import arrow.fx.coroutines.continuations.ResourceScope
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import kotlin.time.Duration
@@ -44,22 +45,19 @@ suspend fun <
   timeout: Duration = 500.milliseconds,
   module: suspend Application.() -> Unit = {}
 ): ApplicationEngine =
-  Resource(
-    acquire = {
-      embeddedServer(factory, host = host, port = port, configure = configure) {}.apply {
-        module(application)
-        start()
-      }
-    },
-    release = { engine, _ ->
-      if (!engine.environment.developmentMode) {
-        engine.environment.log.info(
-          "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
-        )
-        delay(preWait.inWholeMilliseconds)
-      }
-      engine.environment.log.info("Shutting down HTTP server...")
-      engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
-      engine.environment.log.info("HTTP server shutdown!")
+  install({
+    embeddedServer(factory, host = host, port = port, configure = configure) {}.apply {
+      module(application)
+      start()
     }
-  )
+  }) { engine, _ ->
+    if (!engine.environment.developmentMode) {
+      engine.environment.log.info(
+        "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
+      )
+      delay(preWait.inWholeMilliseconds)
+    }
+    engine.environment.log.info("Shutting down HTTP server...")
+    engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
+    engine.environment.log.info("HTTP server shutdown!")
+  }
