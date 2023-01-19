@@ -1,5 +1,5 @@
 public final class arrow/continuations/ktor/KtorServerKt {
-	public static final fun server--IzA1Es (Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function2;)Larrow/fx/coroutines/Resource;
-	public static synthetic fun server--IzA1Es$default (Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)Larrow/fx/coroutines/Resource;
+	public static final fun server-2LLPA_o (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun server-2LLPA_o$default (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
