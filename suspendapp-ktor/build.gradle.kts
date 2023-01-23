@@ -26,9 +26,8 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
-        implementation(libs.coroutines)
-        implementation(libs.arrow.fx)
-        implementation(libs.ktor.core)
+        api(libs.arrow.fx)
+        api(libs.ktor.core)
       }
     }
     

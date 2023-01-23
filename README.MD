@@ -71,15 +71,13 @@ then it will run all the `suspend finalizers` before closing the `App`.
 
 ```kotlin
 fun main() = SuspendApp {
-  Resource(
-    acquire = { println("Creating some resource") },
-    release = { _, exitCase ->
+  resourceScope {
+    install({ println("Creating some resource") }) { _, exitCase ->
       println("ExitCase: $exitCase")
       println("Shutting down will take 10 seconds")
       delay(10_000)
       println("Shutdown finished")
     }
-  ).use {
     println("Application running with acquired resources.")
     awaitCancellation()
   }
@@ -121,7 +119,8 @@ More information on this can be found in this blog by [Phil Pearl](https://philp
 and on [learnk8s.io](https://learnk8s.io/graceful-shutdown).
 
 The module `suspendapp-ktor` provides a `server` constructor that lifts the Ktor `ApplicationEngine` in to a `Resource`, 
-representing the _Engine_ running an `Application`(i.e `Netty`).
+representing the _Engine_ running an `Application`(i.e `Netty`) while supporting auto-reload.
+Check the official Ktor documentation to learn more about [watchPaths](https://ktor.io/docs/auto-reload.html).
 
 When our `release` function of our `ApplicationEngine` is called, there is a `wait` period before the beginning of the stop 
 process (defaulted to `30.seconds`), this gives Kubernetes enough time to do all its network management before we shut down.
@@ -134,14 +133,16 @@ a `SuspendApp`.
 
 ```kotlin
 fun main() = SuspendApp {
-  resource {
-    val engine = server(Netty).bind()
-    engine.application.routing {
-      get("/ping") {
-        call.respond("pong")
+  resourceScope {
+    server(Netty) {
+      routing {
+        get("/ping") {
+          call.respond("pong")
+        }
       }
     }
-  }.use { awaitCancellation() }
+    awaitCancellation()
+  }
 }
 ```
 

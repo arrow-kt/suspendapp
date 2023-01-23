@@ -20,7 +20,10 @@ import kotlinx.coroutines.delay
  *
  * @param host Host address. Default is set to "0.0.0.0"
  *
- * @param configure Ktor server configuration parameters.
+ * @param watchPaths specifies path substrings that will be watched for automatic reloading
+ *
+ * @param configure Ktor server configuration parameters. Only this function is taken into account
+ * for auto-reload.
  *
  * @param preWait preWait a duration to wait before beginning the stop process. During this time,
  * requests will continue to be accepted. This setting is useful to allow time for the container to
@@ -39,17 +42,23 @@ suspend fun <
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   port: Int = 80,
   host: String = "0.0.0.0",
+  watchPaths: List<String> = listOf(WORKING_DIRECTORY_PATH),
   configure: TConfiguration.() -> Unit = {},
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds,
-  module: suspend Application.() -> Unit = {}
+  module: Application.() -> Unit = {}
 ): ApplicationEngine =
   install({
-    embeddedServer(factory, host = host, port = port, configure = configure) {}.apply {
-      module(application)
-      start()
-    }
+    embeddedServer(
+        factory,
+        host = host,
+        port = port,
+        watchPaths = watchPaths,
+        configure = configure,
+        module = module
+      )
+      .apply(ApplicationEngine::start)
   }) { engine, _ ->
     if (!engine.environment.developmentMode) {
       engine.environment.log.info(
@@ -61,3 +70,7 @@ suspend fun <
     engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
     engine.environment.log.info("HTTP server shutdown!")
   }
+
+// Ported from Ktor:
+// https://github.com/ktorio/ktor/blob/0de7948fbe3f78673f4f90de9c5ea5986691819a/ktor-server/ktor-server-host-common/jvmAndNix/src/io/ktor/server/engine/ServerEngineUtils.kt
+internal expect val WORKING_DIRECTORY_PATH: String
