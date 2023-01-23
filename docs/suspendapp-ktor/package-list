@@ -1,0 +1,6 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:arrow.continuations.ktor////PointingToDeclaration/suspendapp-ktor/arrow.continuations.ktor/index.html
+$dokka.location:arrow.continuations.ktor//server/arrow.fx.coroutines.continuations.ResourceScope#io.ktor.server.engine.ApplicationEngineFactory[TypeParam(bounds=[io.ktor.server.engine.ApplicationEngine]),TypeParam(bounds=[io.ktor.server.engine.ApplicationEngine.Configuration])]#kotlin.Int#kotlin.String#kotlin.collections.List[kotlin.String]#kotlin.Function1[TypeParam(bounds=[io.ktor.server.engine.ApplicationEngine.Configuration]),kotlin.Unit]#kotlin.time.Duration#kotlin.time.Duration#kotlin.time.Duration#kotlin.Function1[io.ktor.server.application.Application,kotlin.Unit]/PointingToDeclaration/suspendapp-ktor/arrow.continuations.ktor/server.html
+arrow.continuations.ktor
+
