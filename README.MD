@@ -126,7 +126,8 @@ When our `release` function of our `ApplicationEngine` is called, there is a `wa
 process (defaulted to `30.seconds`), this gives Kubernetes enough time to do all its network management before we shut down.
 Two more parameters are available: `grace` which set the number of seconds during which already inflight requests are 
 allowed to continue before the shutdown process begins, and `timeout` which set the number of seconds after which the 
-server will be forceably shutdown..
+server will be forceably shutdown. In the case that `ktor` server is set in
+[development mode](https://ktor.io/docs/development-mode.html), the `wait` period is ignored. 
 
 Given this `Resource` definition of a Ktor server, with support for gracefully shutting down for K8S we can define
 a `SuspendApp`.
