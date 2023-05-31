@@ -5,7 +5,7 @@ dokka = "1.8.10"
 arrowGradleConfig = "0.10.1"
 kotlinBinaryCompatibilityValidator = "0.13.0"
 knit = "0.4.0"
-ktor = "2.3.0"
+ktor = "2.3.1"
 arrow = "1.1.5"
 
 [libraries]
