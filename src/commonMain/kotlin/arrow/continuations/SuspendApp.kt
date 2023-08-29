@@ -20,12 +20,10 @@ import kotlinx.coroutines.withTimeout
  * It applies backpressure to the process such that they can gracefully shutdown.
  *
  * @param context the [CoroutineContext] where [block] will execute. Use [EmptyCoroutineContext] to
- * create an `CoroutineDispatcher` for the main thread and run there instead.
- *
+ *   create an `CoroutineDispatcher` for the main thread and run there instead.
  * @param timeout the maximum backpressure time that can be applied to the process. This emulates a
- * `SIGKILL` command, and after the [timeout] is passed the App will forcefully shut down regardless
- * of finalizers.
- *
+ *   `SIGKILL` command, and after the [timeout] is passed the App will forcefully shut down
+ *   regardless of finalizers.
  * @param block the lambda of the actual application.
  */
 fun SuspendApp(
