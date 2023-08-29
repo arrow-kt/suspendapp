@@ -2,6 +2,7 @@ package arrow.continuations.unsafe
 
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.exitProcess
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +19,7 @@ import platform.posix.signal
 @SharedImmutable private val BACKPRESSURE: CompletableDeferred<Int> = CompletableDeferred()
 
 @SharedImmutable
+@OptIn(ExperimentalForeignApi::class)
 private val SignalHandler =
   staticCFunction<Int, Unit> { code ->
     SIGNAL.complete(code)
@@ -26,7 +28,7 @@ private val SignalHandler =
   }
 
 actual object Unsafe {
-  @OptIn(DelicateCoroutinesApi::class)
+  @OptIn(DelicateCoroutinesApi::class, ExperimentalForeignApi::class)
   actual fun onShutdown(block: suspend () -> Unit): () -> Unit {
     GlobalScope.launch {
       val code: Int = SIGNAL.await()

@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.8.21"
+kotlin = "1.9.10"
 coroutines = "1.7.2"
 dokka = "1.8.10"
 arrowGradleConfig = "0.11.0"
