@@ -25,9 +25,9 @@ actual object Unsafe {
   actual fun onShutdown(block: suspend () -> Unit): () -> Unit {
     suspend fun run(code: Int): Result<Unit> =
       runCatching {
-        block()
-        exitProcess(code)
-      }
+          block()
+          exitProcess(code)
+        }
         .onFailure {
           it.printStackTrace()
           exitProcess(-1)

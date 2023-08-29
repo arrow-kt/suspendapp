@@ -14,10 +14,11 @@ actual object Unsafe {
         {
           runBlocking {
             isShutdown.set(true)
-            runCatching { block() }.onFailure {
-              // Change to default error handler lambda
-              it.printStackTrace()
-            }
+            runCatching { block() }
+              .onFailure {
+                // Change to default error handler lambda
+                it.printStackTrace()
+              }
           }
         },
         "Shutdown hook"
