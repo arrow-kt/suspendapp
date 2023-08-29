@@ -37,8 +37,8 @@ import kotlinx.coroutines.delay
  * @param module Represents configured and running web application, capable of handling requests.
  */
 suspend fun <
-  TEngine : ApplicationEngine,
-  TConfiguration : ApplicationEngine.Configuration> ResourceScope.server(
+  TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> ResourceScope
+  .server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   port: Int = 80,
   host: String = "0.0.0.0",

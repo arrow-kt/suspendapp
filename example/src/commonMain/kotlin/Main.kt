@@ -5,13 +5,13 @@ import kotlinx.coroutines.delay
 
 fun main() = SuspendApp {
   resource {
-    install({ println("Creating some resource") }) { _, exitCase ->
-      println("ExitCase: $exitCase")
-      println("Shutting down will take 10 seconds")
-      delay(10_000)
-      println("Shutdown finished")
+      install({ println("Creating some resource") }) { _, exitCase ->
+        println("ExitCase: $exitCase")
+        println("Shutting down will take 10 seconds")
+        delay(10_000)
+        println("Shutdown finished")
+      }
     }
-  }
     .use {
       println("Application running with acquired resources.")
       awaitCancellation()
