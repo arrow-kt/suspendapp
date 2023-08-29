@@ -1,7 +1,7 @@
 [versions]
 kotlin = "1.8.21"
 coroutines = "1.7.2"
-dokka = "1.8.10"
+dokka = "1.8.20"
 arrowGradleConfig = "0.11.0"
 kotlinBinaryCompatibilityValidator = "0.13.2"
 knit = "0.4.0"
