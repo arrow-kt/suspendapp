@@ -29,8 +29,8 @@ private val SignalHandler =
 
 actual object Unsafe {
   @OptIn(DelicateCoroutinesApi::class, ExperimentalForeignApi::class)
-  actual fun onShutdown(block: suspend () -> Unit): () -> Unit {
-    GlobalScope.launch {
+  actual fun onShutdown(context: CoroutineContext, block: suspend () -> Unit): () -> Unit {
+    GlobalScope.launch(context) {
       val code: Int = SIGNAL.await()
       val res: Result<Unit> = runCatching { block() }
       BACKPRESSURE.complete(res.fold({ code }, { -1 }))
@@ -38,11 +38,15 @@ actual object Unsafe {
 
     signal(SIGTERM, SignalHandler)
     signal(SIGINT, SignalHandler)
-    return {}
+    return { /* Nothing to unregister */}
   }
 
   actual fun runCoroutineScope(
     context: CoroutineContext,
     block: suspend CoroutineScope.() -> Unit,
   ): Unit = runBlocking(context, block)
+
+  actual fun exit(code: Int) {
+    exitProcess(code)
+  }
 }

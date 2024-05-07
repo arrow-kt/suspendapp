@@ -29,10 +29,19 @@ import kotlinx.coroutines.withTimeout
 fun SuspendApp(
   context: CoroutineContext = Dispatchers.Default,
   timeout: Duration = Duration.INFINITE,
-  block: suspend CoroutineScope.() -> Unit,
+  block: suspend CoroutineScope.() -> Unit
 ): Unit =
   Unsafe.runCoroutineScope(context) {
-    val job: Job = launch(context = context, start = CoroutineStart.LAZY) { block() }
+    val job: Job =
+      launch(context = context, start = CoroutineStart.LAZY) {
+        try {
+          block()
+          Unsafe.exit(0)
+        } catch (e: Throwable) {
+          e.printStackTrace()
+          Unsafe.exit(-1)
+        }
+      }
     val unregister: () -> Unit = Unsafe.onShutdown { withTimeout(timeout) { job.cancelAndJoin() } }
     job.start()
     job.join()

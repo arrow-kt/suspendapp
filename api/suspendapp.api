@@ -5,7 +5,10 @@ public final class arrow/continuations/SuspendAppKt {
 
 public final class arrow/continuations/unsafe/Unsafe {
 	public static final field INSTANCE Larrow/continuations/unsafe/Unsafe;
-	public final fun onShutdown (Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function0;
+	public final fun exit (I)V
+	public final fun onShutdown (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function0;
+	public static synthetic fun onShutdown$default (Larrow/continuations/unsafe/Unsafe;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlin/jvm/functions/Function0;
+	public final fun onSignal (Lkotlin/coroutines/CoroutineContext;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public final fun runCoroutineScope (Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)V
 }
 

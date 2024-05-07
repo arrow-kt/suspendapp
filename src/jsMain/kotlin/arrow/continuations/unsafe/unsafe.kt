@@ -2,7 +2,6 @@ package arrow.continuations.unsafe
 
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.startCoroutine
 import kotlin.js.Promise
 import kotlin.time.Duration.Companion.hours
@@ -17,25 +16,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.promise
 
 actual object Unsafe {
-  @Suppress("UNUSED_PARAMETER")
-  private fun exitProcess(i: Int) {
-    runCatching { js("process.exit(i)") }
-  }
-
-  actual fun onShutdown(block: suspend () -> Unit): () -> Unit {
+  actual fun onShutdown(context: CoroutineContext, block: suspend () -> Unit): () -> Unit {
     suspend fun run(code: Int): Result<Unit> =
       runCatching {
           block()
-          exitProcess(code)
+          exit(code)
         }
         .onFailure {
           it.printStackTrace()
-          exitProcess(-1)
+          exit(-1)
         }
 
-    onSignal("SIGTERM") { run(143) }
-    onSignal("SIGINT") { run(130) }
-    return {}
+    onSignal(context, "SIGTERM") { run(143) }
+    onSignal(context, "SIGINT") { run(130) }
+    return { /* Nothing to unregister */}
   }
 
   actual fun runCoroutineScope(
@@ -57,17 +51,24 @@ actual object Unsafe {
               delay(1.hours)
             }
           }
-        runCatching { block(innerScope) }.also { keepAlive.cancelAndJoin() }.getOrThrow()
+
+        block(innerScope)
+        keepAlive.cancelAndJoin()
       }
-      .startCoroutine(Continuation(EmptyCoroutineContext) {})
+      .startCoroutine(Continuation(context) {})
   }
 
-  @OptIn(DelicateCoroutinesApi::class)
-  @Suppress("UNUSED_PARAMETER")
-  private fun onSignal(signal: String, block: suspend () -> Unit) {
+  fun onSignal(context: CoroutineContext, signal: String, handle: suspend () -> Unit) {
+    @OptIn(DelicateCoroutinesApi::class)
     @Suppress("UNUSED_VARIABLE")
-    val provide: () -> Promise<Unit> = { GlobalScope.promise { block() } }
-
+    val provide: () -> Promise<Unit> = { GlobalScope.promise(context) { handle() } }
     js("process.on(signal, function() {\n" + "  provide()\n" + "});")
+  }
+
+  actual fun exit(code: Int) {
+    runCatching { js("process.exit(i)") }
+    throw RuntimeException(
+      "process.exit($code) returned normally, while it was supposed to halt NodeJS."
+    )
   }
 }
