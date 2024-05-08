@@ -1,5 +1,6 @@
 package arrow.continuations
 
+import arrow.suspendapp.Process
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext

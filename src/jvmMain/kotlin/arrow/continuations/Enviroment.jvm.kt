@@ -1,5 +1,6 @@
 package arrow.continuations
 
+import arrow.suspendapp.Process
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.exitProcess

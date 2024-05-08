@@ -1,4 +1,4 @@
-package arrow.continuations
+package arrow.suspendapp
 
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope

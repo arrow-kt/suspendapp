@@ -1,4 +1,4 @@
-package arrow.continuations.ktor
+package arrow.suspendapp.ktor
 
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.ResourceScope
@@ -7,8 +7,7 @@ import io.ktor.server.engine.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import arrow.suspendapp.ktor.server as kserver
-import arrow.suspendapp.ktor.WORKING_DIRECTORY_PATH
+import kotlinx.coroutines.delay
 
 /**
  * Ktor [ApplicationEngine] as a [Resource]. This [Resource] will gracefully shut down the server
@@ -29,13 +28,6 @@ import arrow.suspendapp.ktor.WORKING_DIRECTORY_PATH
  * @param timeout timeout a duration after which the server will be forceably shutdown.
  * @param module Represents configured and running web application, capable of handling requests.
  */
-@Deprecated(
-  "Changed package to arrow.suspendapp.ktor",
-  ReplaceWith(
-    "server(factory, port, host, watchPaths, configure, preWait, grace, timeout)",
-    "arrow.suspendapp.ktor.server"
-  )
-)
 suspend fun <
   TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> ResourceScope
   .server(
@@ -49,4 +41,28 @@ suspend fun <
   timeout: Duration = 500.milliseconds,
   module: Application.() -> Unit = {}
 ): ApplicationEngine =
-  kserver(factory, port, host, watchPaths, configure, preWait, grace, timeout)
+  install({
+    embeddedServer(
+        factory,
+        host = host,
+        port = port,
+        watchPaths = watchPaths,
+        configure = configure,
+        module = module
+      )
+      .apply(ApplicationEngine::start)
+  }) { engine, _ ->
+    if (!engine.environment.developmentMode) {
+      engine.environment.log.info(
+        "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
+      )
+      delay(preWait.inWholeMilliseconds)
+    }
+    engine.environment.log.info("Shutting down HTTP server...")
+    engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
+    engine.environment.log.info("HTTP server shutdown!")
+  }
+
+// Ported from Ktor:
+// https://github.com/ktorio/ktor/blob/0de7948fbe3f78673f4f90de9c5ea5986691819a/ktor-server/ktor-server-host-common/jvmAndNix/src/io/ktor/server/engine/ServerEngineUtils.kt
+internal expect val WORKING_DIRECTORY_PATH: String

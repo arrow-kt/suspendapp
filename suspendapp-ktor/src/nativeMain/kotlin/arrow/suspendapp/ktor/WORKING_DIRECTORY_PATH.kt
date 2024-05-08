@@ -1,4 +1,4 @@
-package arrow.continuations.ktor
+package arrow.suspendapp.ktor
 
 import kotlinx.cinterop.*
 import platform.posix.*
