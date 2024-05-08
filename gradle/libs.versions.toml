@@ -1,6 +1,6 @@
 [versions]
-kotlin = "1.9.10"
-coroutines = "1.7.2"
+kotlin = "1.9.24"
+coroutines = "1.8.0"
 dokka = "1.9.20"
 arrowGradleConfig = "0.12.0-rc.6"
 kotlinBinaryCompatibilityValidator = "0.14.0"
