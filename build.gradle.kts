@@ -17,6 +17,7 @@ repositories {
 
 allprojects {
   group = property("projects.group").toString()
+  extra.set("dokka.outputDirectory", rootDir.resolve("docs"))
 }
 
 kotlin {
@@ -87,7 +88,7 @@ tasks {
   
   register<Delete>("cleanDocs") {
     val folder = file("docs").also { it.mkdir() }
-    val docsContent = folder.listFiles()?.filter { it != folder }
+    val docsContent = folder.listFiles().filter { it != folder }
     delete(docsContent)
   }
 }
