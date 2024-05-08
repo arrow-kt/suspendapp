@@ -10,9 +10,10 @@ dependencies {
 
 ## Rationale
 
-When building applications that require graceful shutdown it typically requires us to write a lot of platform-specific
-code.
-This library aims to solve that problem by leveraging Kotlin MPP using KotlinX Coroutines, and Structured Concurrency.
+When writing software we need to deal with the lifecycle of the application such as termination signals, and sending
+correct exit codes. This is important, so we correctly interact with the OS our application runs on.
+This requires a lot of platform-specific code, SuspendApp solves that problem by leveraging Kotlin MPP using KotlinX Coroutines, and Structured Concurrency. 
+See [Simple Example below](#simple-example).
 
 Currently supported targets:
 
@@ -118,16 +119,18 @@ shutdown.
 More information on this can be found in this blog by [Phil Pearl](https://philpearl.github.io/post/k8s_ingress/),
 and on [learnk8s.io](https://learnk8s.io/graceful-shutdown).
 
-The module `suspendapp-ktor` provides a `server` constructor that lifts the Ktor `ApplicationEngine` in to a `Resource`, 
+The module `suspendapp-ktor` provides a `server` constructor that lifts the Ktor `ApplicationEngine` in to a `Resource`,
 representing the _Engine_ running an `Application`(i.e `Netty`) while supporting auto-reload.
 Check the official Ktor documentation to learn more about [watchPaths](https://ktor.io/docs/auto-reload.html).
 
-When our `release` function of our `ApplicationEngine` is called, there is a `wait` period before the beginning of the stop 
-process (defaulted to `30.seconds`), this gives Kubernetes enough time to do all its network management before we shut down.
-Two more parameters are available: `grace` which set the number of seconds during which already inflight requests are 
-allowed to continue before the shutdown process begins, and `timeout` which set the number of seconds after which the 
+When our `release` function of our `ApplicationEngine` is called, there is a `wait` period before the beginning of the
+stop
+process (defaulted to `30.seconds`), this gives Kubernetes enough time to do all its network management before we shut
+down.
+Two more parameters are available: `grace` which set the number of seconds during which already inflight requests are
+allowed to continue before the shutdown process begins, and `timeout` which set the number of seconds after which the
 server will be forceably shutdown. In the case that `ktor` server is set in
-[development mode](https://ktor.io/docs/development-mode.html), the `wait` period is ignored. 
+[development mode](https://ktor.io/docs/development-mode.html), the `wait` period is ignored.
 
 Given this `Resource` definition of a Ktor server, with support for gracefully shutting down for K8S we can define
 a `SuspendApp`.
@@ -218,7 +221,8 @@ You can run your NodeJS app with the following `node` command,
 and if you press `ctrl+c` within the first 2500ms you will see the following output.
 
 ```text
-node build/js/packages/YourAppName/kotlin/YourAppName.js
+./gradlew compileProductionExecutableKotlinJs
+node example/build/compileSync/js/main/productionExecutable/kotlin/suspendapp-example.js
 
 App Started! Waiting until asked to shutdown.
 ^CCleaning up App... will take 10 seconds...
@@ -248,7 +252,7 @@ You can run your Native app with the following command,
 and if you press `ctrl+c` within the first 2500ms you will see the following output.
 
 ```text
-./gradlew build
+./gradlew linkReleaseExecutableMacosArm64
 build/bin/native/releaseExecutable/YourAppName.kexe
 
 App Started! Waiting until asked to shutdown.

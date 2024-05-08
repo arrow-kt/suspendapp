@@ -1,7 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.dokka)
@@ -18,7 +17,6 @@ repositories {
 
 allprojects {
   group = property("projects.group").toString()
-  extra.set("dokka.outputDirectory", rootDir.resolve("docs"))
 }
 
 kotlin {
@@ -51,14 +49,6 @@ kotlin {
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
-    
-    create("nativeMain") {
-      dependsOn(commonMain)
-      mingwX64Main.dependsOn(this)
-      linuxX64Main.dependsOn(this)
-      macosArm64Main.dependsOn(this)
-      macosX64Main.dependsOn(this)
-    }
   }
 }
 
@@ -73,6 +63,7 @@ tasks {
           matchingRegex.set(".*\\.unsafe.*")
           suppress.set(true)
         }
+        externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
         sourceLink {
           localDirectory.set(file("src/commonMain/kotlin"))
           remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
@@ -81,14 +72,14 @@ tasks {
       }
     }
   }
-  
+
   withType<KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
   }
   
   register<Delete>("cleanDocs") {
     val folder = file("docs").also { it.mkdir() }
-    val docsContent = folder.listFiles().filter { it != folder }
+    val docsContent = folder.listFiles()?.filter { it != folder }
     delete(docsContent)
   }
 }

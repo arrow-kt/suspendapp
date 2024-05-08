@@ -1,16 +1,9 @@
 package arrow.continuations
 
-import arrow.continuations.unsafe.Unsafe
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 
 /**
  * An unsafe blocking edge that wires the [CoroutineScope] (and structured concurrency) to the
@@ -28,22 +21,35 @@ import kotlinx.coroutines.withTimeout
  */
 fun SuspendApp(
   context: CoroutineContext = Dispatchers.Default,
+  uncaught: (Throwable) -> Unit = Throwable::printStackTrace,
   timeout: Duration = Duration.INFINITE,
-  block: suspend CoroutineScope.() -> Unit
+  process: Process = process(),
+  block: suspend CoroutineScope.() -> Unit,
 ): Unit =
-  Unsafe.runCoroutineScope(context) {
-    val job: Job =
-      launch(context = context, start = CoroutineStart.LAZY) {
-        try {
-          block()
-          Unsafe.exit(0)
-        } catch (e: Throwable) {
-          e.printStackTrace()
-          Unsafe.exit(-1)
+  process.use { env ->
+    env.runScope(context) {
+      val job =
+        launch(start = CoroutineStart.LAZY) {
+          try {
+            block()
+            env.exit(0)
+          } catch (_: SuspendAppShutdown) {} catch (e: Throwable) {
+            uncaught(e)
+            env.exit(-1)
+          }
         }
-      }
-    val unregister: () -> Unit = Unsafe.onShutdown { withTimeout(timeout) { job.cancelAndJoin() } }
-    job.start()
-    job.join()
-    unregister()
+      val unregister =
+        env.onShutdown {
+          withTimeout(timeout) {
+            job.cancel(SuspendAppShutdown)
+            job.join()
+          }
+        }
+      job.start()
+      job.join()
+      unregister()
+    }
   }
+
+/** Marker type so track shutdown signal */
+private object SuspendAppShutdown : CancellationException("SuspendApp shutting down.")
