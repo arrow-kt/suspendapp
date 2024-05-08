@@ -52,15 +52,7 @@ suspend fun <
       )
       .apply(ApplicationEngine::start)
   }) { engine, _ ->
-    if (!engine.environment.developmentMode) {
-      engine.environment.log.info(
-        "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
-      )
-      delay(preWait.inWholeMilliseconds)
-    }
-    engine.environment.log.info("Shutting down HTTP server...")
-    engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
-    engine.environment.log.info("HTTP server shutdown!")
+    engine.release(preWait, grace, timeout)
   }
 
 /**
@@ -82,21 +74,32 @@ suspend fun <
   .server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   environment: ApplicationEngineEnvironment,
+  configure: TConfiguration.() -> Unit = {},
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds
 ): ApplicationEngine =
-  install({ embeddedServer(factory, environment).apply(ApplicationEngine::start) }) { engine, _ ->
-    if (!engine.environment.developmentMode) {
-      engine.environment.log.info(
-        "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
-      )
-      delay(preWait.inWholeMilliseconds)
-    }
-    engine.environment.log.info("Shutting down HTTP server...")
-    engine.stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
-    engine.environment.log.info("HTTP server shutdown!")
+  install({ embeddedServer(factory, environment, configure).apply(ApplicationEngine::start) }) {
+    engine,
+    _ ->
+    engine.release(preWait, grace, timeout)
   }
+
+private suspend fun ApplicationEngine.release(
+  preWait: Duration,
+  grace: Duration,
+  timeout: Duration
+) {
+  if (!environment.developmentMode) {
+    environment.log.info(
+      "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
+    )
+    delay(preWait.inWholeMilliseconds)
+  }
+  environment.log.info("Shutting down HTTP server...")
+  stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
+  environment.log.info("HTTP server shutdown!")
+}
 
 // Ported from Ktor:
 // https://github.com/ktorio/ktor/blob/0de7948fbe3f78673f4f90de9c5ea5986691819a/ktor-server/ktor-server-host-common/jvmAndNix/src/io/ktor/server/engine/ServerEngineUtils.kt

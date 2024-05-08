@@ -1,7 +1,5 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   id(libs.plugins.kotlin.multiplatform.get().pluginId)
-
   alias(libs.plugins.arrowGradleConfig.formatter)
   alias(libs.plugins.arrowGradleConfig.publish)
   alias(libs.plugins.arrowGradleConfig.versioning)
@@ -35,7 +33,7 @@ kotlin {
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
-    
+
     create("nativeMain") {
       dependsOn(commonMain)
       linuxX64Main.dependsOn(this)

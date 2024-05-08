@@ -1,33 +1,38 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.RELEASE
+
 plugins {
   kotlin("multiplatform")
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 kotlin {
-  // TODO fix setup for Main-Class
-  // jvm()
+  jvm {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    mainRun {
+      mainClass.set("io.arrow.suspendapp.example.MaintKt")
+    }
+    withJava()
+  }
   js(IR) {
-    nodejs {
-      binaries.executable()
+    nodejs()
+    binaries.executable()
+  }
+
+  listOf(
+    linuxX64(),
+    mingwX64(),
+    macosArm64(),
+    macosX64()
+  ).forEach { target ->
+    target.binaries.executable(listOf(RELEASE)) {
+      entryPoint = "io.arrow.suspendapp.example.main"
     }
   }
-  
-  linuxX64 {
-    binaries.executable()
-  }
-  mingwX64 {
-    binaries.executable()
-  }
-  macosArm64 {
-    binaries.executable()
-  }
-  macosX64 {
-    binaries.executable()
-  }
-  
+
   sourceSets {
     val commonMain by getting {
       dependencies {
@@ -35,20 +40,12 @@ kotlin {
         implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0")
       }
     }
-    
-    // val jvmMain by getting
+
+    val jvmMain by getting
     val jsMain by getting
     val mingwX64Main by getting
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
-    
-    create("nativeMain") {
-      dependsOn(commonMain)
-      mingwX64Main.dependsOn(this)
-      linuxX64Main.dependsOn(this)
-      macosArm64Main.dependsOn(this)
-      macosX64Main.dependsOn(this)
-    }
   }
 }
