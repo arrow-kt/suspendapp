@@ -1,4 +1,13 @@
 public final class arrow/continuations/ktor/KtorServerKt {
+	public static final fun server--IzA1Es (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;Lio/ktor/server/engine/ApplicationEngineEnvironment;Lkotlin/jvm/functions/Function1;JJJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun server--IzA1Es$default (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;Lio/ktor/server/engine/ApplicationEngineEnvironment;Lkotlin/jvm/functions/Function1;JJJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun server-T7_icE8 (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun server-T7_icE8$default (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class arrow/suspendapp/ktor/KtorServerKt {
+	public static final fun server--IzA1Es (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;Lio/ktor/server/engine/ApplicationEngineEnvironment;Lkotlin/jvm/functions/Function1;JJJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun server--IzA1Es$default (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;Lio/ktor/server/engine/ApplicationEngineEnvironment;Lkotlin/jvm/functions/Function1;JJJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun server-T7_icE8 (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun server-T7_icE8$default (Larrow/fx/coroutines/continuations/ResourceScope;Lio/ktor/server/engine/ApplicationEngineFactory;ILjava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;JJJLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }

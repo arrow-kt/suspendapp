@@ -1,6 +1,5 @@
-package arrow.continuations
+package arrow.suspendapp
 
-import arrow.suspendapp.Process
 import kotlin.coroutines.CoroutineContext
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.system.exitProcess
@@ -25,7 +24,7 @@ public val SIGUSR1: Int? =
     else -> null
   }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalStdlibApi::class)
 private class NativeProcess : Process, AutoCloseable {
   private val job = SupervisorJob()
   private val scope = CoroutineScope(SIGNAL_DISPATCHER + job)
@@ -57,7 +56,7 @@ private class NativeProcess : Process, AutoCloseable {
     signal(code, handler)
   }
 
-  @OptIn(ExperimentalNativeApi::class)
+  @OptIn(ExperimentalNativeApi::class, ExperimentalStdlibApi::class)
   override fun close(): Unit = runBlocking {
     // TODO join all jobs, and re-throw all exceptions ??
     //   All jobs should've finished when the Enviroment is closed.

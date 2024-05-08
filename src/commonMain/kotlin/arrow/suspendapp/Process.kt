@@ -10,6 +10,7 @@ expect fun process(): Process
  * [Process] offers a common API to work with our application's process, installing signal handlers,
  * shutdown hooks, running scopes in our process (runBlocking), and exiting the process.
  */
+@OptIn(ExperimentalStdlibApi::class)
 interface Process : AutoCloseable {
   fun onSigTerm(block: suspend (code: Int) -> Unit): Unit
 

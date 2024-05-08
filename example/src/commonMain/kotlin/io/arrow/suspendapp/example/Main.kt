@@ -1,7 +1,7 @@
 package io.arrow.suspendapp.example
 
-import arrow.continuations.SuspendApp
 import arrow.fx.coroutines.resource
+import arrow.suspendapp.SuspendApp
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 
