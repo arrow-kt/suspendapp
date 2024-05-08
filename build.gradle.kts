@@ -1,7 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.dokka)
@@ -32,7 +31,8 @@ kotlin {
   js(IR) {
     nodejs()
   }
-  
+
+  linuxArm64()
   linuxX64()
   mingwX64()
   macosArm64()
@@ -51,13 +51,15 @@ kotlin {
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
-    
+    val linuxArm64Main by getting
+
     create("nativeMain") {
       dependsOn(commonMain)
-      mingwX64Main.dependsOn(this)
       linuxX64Main.dependsOn(this)
       macosArm64Main.dependsOn(this)
       macosX64Main.dependsOn(this)
+      mingwX64Main.dependsOn(this)
+      linuxArm64Main.dependsOn(this)
     }
   }
 }
@@ -73,6 +75,7 @@ tasks {
           matchingRegex.set(".*\\.unsafe.*")
           suppress.set(true)
         }
+        externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
         sourceLink {
           localDirectory.set(file("src/commonMain/kotlin"))
           remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
@@ -81,7 +84,7 @@ tasks {
       }
     }
   }
-  
+
   withType<KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
   }

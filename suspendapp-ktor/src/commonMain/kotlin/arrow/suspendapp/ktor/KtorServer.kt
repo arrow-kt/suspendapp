@@ -1,14 +1,13 @@
-package arrow.continuations.ktor
+package arrow.suspendapp.ktor
 
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.ResourceScope
-import arrow.suspendapp.ktor.WORKING_DIRECTORY_PATH
-import arrow.suspendapp.ktor.server as kserver
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 
 /**
  * Ktor [ApplicationEngine] as a [Resource]. This [Resource] will gracefully shut down the server
@@ -42,7 +41,19 @@ suspend fun <
   timeout: Duration = 500.milliseconds,
   module: Application.() -> Unit = {}
 ): ApplicationEngine =
-  kserver(factory, port, host, watchPaths, configure, preWait, grace, timeout, module)
+  install({
+    embeddedServer(
+        factory,
+        host = host,
+        port = port,
+        watchPaths = watchPaths,
+        configure = configure,
+        module = module
+      )
+      .apply(ApplicationEngine::start)
+  }) { engine, _ ->
+    engine.release(preWait, grace, timeout)
+  }
 
 /**
  * Ktor [ApplicationEngine] as a [Resource]. This [Resource] will gracefully shut down the server
@@ -67,4 +78,29 @@ suspend fun <
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds
-): ApplicationEngine = kserver(factory, environment, configure, preWait, grace, timeout)
+): ApplicationEngine =
+  install({ embeddedServer(factory, environment, configure).apply(ApplicationEngine::start) }) {
+    engine,
+    _ ->
+    engine.release(preWait, grace, timeout)
+  }
+
+private suspend fun ApplicationEngine.release(
+  preWait: Duration,
+  grace: Duration,
+  timeout: Duration
+) {
+  if (!environment.developmentMode) {
+    environment.log.info(
+      "prewait delay of ${preWait.inWholeMilliseconds}ms, turn it off using io.ktor.development=true"
+    )
+    delay(preWait.inWholeMilliseconds)
+  }
+  environment.log.info("Shutting down HTTP server...")
+  stop(grace.inWholeMilliseconds, timeout.inWholeMicroseconds)
+  environment.log.info("HTTP server shutdown!")
+}
+
+// Ported from Ktor:
+// https://github.com/ktorio/ktor/blob/0de7948fbe3f78673f4f90de9c5ea5986691819a/ktor-server/ktor-server-host-common/jvmAndNix/src/io/ktor/server/engine/ServerEngineUtils.kt
+internal expect val WORKING_DIRECTORY_PATH: String

@@ -1,4 +1,4 @@
-package arrow.continuations.unsafe
+package arrow.suspendapp
 
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
@@ -16,32 +16,30 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.promise
 
-actual object Unsafe {
+actual fun process(): Process = JsProcess
+
+object JsProcess : Process {
+  override fun onShutdown(block: suspend () -> Unit): suspend () -> Unit {
+    onSigTerm { code -> exitAfter(128 + code) { block() } }
+    onSigInt { code -> exitAfter(128 + code) { block() } }
+    return { /* Nothing to unregister */}
+  }
+
+  override fun onSigTerm(block: suspend (code: Int) -> Unit) = onSignal("SIGTERM") { block(15) }
+
+  override fun onSigInt(block: suspend (code: Int) -> Unit) = onSignal("SIGINT") { block(2) }
+
+  @OptIn(DelicateCoroutinesApi::class)
   @Suppress("UNUSED_PARAMETER")
-  private fun exitProcess(i: Int) {
-    runCatching { js("process.exit(i)") }
+  private fun onSignal(signal: String, block: suspend () -> Unit) {
+    @Suppress("UNUSED_VARIABLE")
+    val provide: () -> Promise<Unit> = { GlobalScope.promise { block() } }
+    js("process.on(signal, function() {\n" + "  provide()\n" + "});")
   }
 
-  actual fun onShutdown(block: suspend () -> Unit): () -> Unit {
-    suspend fun run(code: Int): Result<Unit> =
-      runCatching {
-          block()
-          exitProcess(code)
-        }
-        .onFailure {
-          it.printStackTrace()
-          exitProcess(-1)
-        }
+  private val jobs: MutableList<Job> = mutableListOf()
 
-    onSignal("SIGTERM") { run(143) }
-    onSignal("SIGINT") { run(130) }
-    return {}
-  }
-
-  actual fun runCoroutineScope(
-    context: CoroutineContext,
-    block: suspend CoroutineScope.() -> Unit,
-  ) {
+  override fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit) {
     val innerJob = Job()
     val innerScope = CoroutineScope(innerJob)
     suspend {
@@ -62,12 +60,21 @@ actual object Unsafe {
       .startCoroutine(Continuation(EmptyCoroutineContext) {})
   }
 
-  @OptIn(DelicateCoroutinesApi::class)
-  @Suppress("UNUSED_PARAMETER")
-  private fun onSignal(signal: String, block: suspend () -> Unit) {
-    @Suppress("UNUSED_VARIABLE")
-    val provide: () -> Promise<Unit> = { GlobalScope.promise { block() } }
+  override fun exit(code: Int) {
+    runCatching { js("process.exit(code)") }
+  }
 
-    js("process.on(signal, function() {\n" + "  provide()\n" + "});")
+  override fun close() {
+    suspend { jobs.forEach { it.cancelAndJoin() } }
+      .startCoroutine(Continuation(EmptyCoroutineContext) {})
   }
 }
+
+private inline fun Process.exitAfter(code: Int, block: () -> Unit): Unit =
+  try {
+    block()
+    exit(code)
+  } catch (e: Throwable) {
+    e.printStackTrace()
+    exit(-1)
+  }
