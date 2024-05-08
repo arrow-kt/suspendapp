@@ -31,7 +31,8 @@ kotlin {
   js(IR) {
     nodejs()
   }
-  
+
+  linuxArm64()
   linuxX64()
   mingwX64()
   macosArm64()
