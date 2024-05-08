@@ -51,6 +51,7 @@ kotlin {
     val linuxX64Main by getting
     val macosArm64Main by getting
     val macosX64Main by getting
+    val linuxArm64Main by getting
 
     create("nativeMain") {
       dependsOn(commonMain)
@@ -58,6 +59,7 @@ kotlin {
       macosArm64Main.dependsOn(this)
       macosX64Main.dependsOn(this)
       mingwX64Main.dependsOn(this)
+      linuxArm64Main.dependsOn(this)
     }
   }
 }
