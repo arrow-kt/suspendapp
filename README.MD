@@ -60,7 +60,7 @@ Note: since our `CoroutineScope` is cancelled we need to run our `delay` in `Non
 
 ## SuspendApp Arrow's Resource
 
-[Arrow Fx Coroutines Resource](https://arrow-kt.io/docs/apidocs/arrow-fx-coroutines/arrow.fx.coroutines/-resource/)
+[Arrow Fx Coroutines Resource](https://apidocs.arrow-kt.io/arrow-fx-coroutines/arrow.fx.coroutines/-resource/index.html)
 allows for modeling resources within the `suspend` world,
 and properly takes into account structured concurrency and cancellation.
 This means that when a `CoroutineScope` gets cancelled, then any `suspend finalizer` will _back pressure_ `Job#join`.
