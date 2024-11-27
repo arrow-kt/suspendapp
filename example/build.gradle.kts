@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.RELEASE
 
 plugins {
-  kotlin("multiplatform")
+  alias(libs.plugins.kotlin.multiplatform)
 }
 
 repositories {
@@ -34,18 +34,11 @@ kotlin {
   }
 
   sourceSets {
-    val commonMain by getting {
+    commonMain {
       dependencies {
         implementation(project.rootProject)
         implementation(libs.arrow.fx)
       }
     }
-
-    val jvmMain by getting
-    val jsMain by getting
-    val mingwX64Main by getting
-    val linuxX64Main by getting
-    val macosArm64Main by getting
-    val macosX64Main by getting
   }
 }

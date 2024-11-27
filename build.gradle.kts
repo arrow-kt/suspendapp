@@ -1,5 +1,5 @@
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -24,8 +24,8 @@ kotlin {
   // We set up custom targets rather than use Arrow Gradle Config for Kotlin,
   // Since we don't support all targets but only subset where having this behavior makes sense.
   jvm {
-    compilations.all {
-      kotlinOptions.jvmTarget = "1.8"
+    compilerOptions {
+      jvmTarget = JvmTarget.JVM_1_8
     }
   }
   js(IR) {
@@ -39,27 +39,10 @@ kotlin {
   macosX64()
   
   sourceSets {
-    val commonMain by getting {
+    commonMain {
       dependencies {
         api(libs.coroutines)
       }
-    }
-    
-    val jvmMain by getting
-    val jsMain by getting
-    val mingwX64Main by getting
-    val linuxX64Main by getting
-    val macosArm64Main by getting
-    val macosX64Main by getting
-    val linuxArm64Main by getting
-
-    create("nativeMain") {
-      dependsOn(commonMain)
-      linuxX64Main.dependsOn(this)
-      macosArm64Main.dependsOn(this)
-      macosX64Main.dependsOn(this)
-      mingwX64Main.dependsOn(this)
-      linuxArm64Main.dependsOn(this)
     }
   }
 }
@@ -85,10 +68,6 @@ tasks {
     }
   }
 
-  withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
-  }
-  
   register<Delete>("cleanDocs") {
     val folder = file("docs").also { it.mkdir() }
     val docsContent = folder.listFiles().filter { it != folder }

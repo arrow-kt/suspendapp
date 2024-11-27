@@ -1,7 +1,7 @@
 package arrow.continuations.ktor
 
 import arrow.fx.coroutines.Resource
-import arrow.fx.coroutines.continuations.ResourceScope
+import arrow.fx.coroutines.ResourceScope
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.util.logging.*
