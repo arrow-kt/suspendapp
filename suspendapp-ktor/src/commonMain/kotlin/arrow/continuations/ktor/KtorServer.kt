@@ -28,8 +28,9 @@ import kotlinx.coroutines.delay
  * @param module Represents configured and running web application, capable of handling requests.
  */
 suspend fun <
-  TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> ResourceScope
-  .server(
+  TEngine : ApplicationEngine,
+  TConfiguration : ApplicationEngine.Configuration
+> ResourceScope.server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   port: Int = 80,
   host: String = "0.0.0.0",
@@ -62,8 +63,9 @@ suspend fun <
  * @param timeout timeout a duration after which the server will be forcibly shutdown.
  */
 suspend fun <
-  TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration> ResourceScope
-  .server(
+  TEngine : ApplicationEngine,
+  TConfiguration : ApplicationEngine.Configuration
+> ResourceScope.server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   rootConfig: ServerConfig,
   configure: TConfiguration.() -> Unit = {},
