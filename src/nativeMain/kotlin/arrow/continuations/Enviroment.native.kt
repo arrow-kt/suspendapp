@@ -32,7 +32,7 @@ private class NativeProcess : Process, AutoCloseable {
   override fun onShutdown(block: suspend () -> Unit): suspend () -> Unit {
     onSigTerm { exitAfter(it + 128) { block() } }
     onSigInt { exitAfter(it + 128) { block() } }
-    return { /* Nothing to unregister */}
+    return { /* Nothing to unregister */ }
   }
 
   override fun exit(code: Int): Nothing = exitProcess(code)

@@ -1,18 +1,18 @@
 [versions]
-kotlin = "2.0.0"
-coroutines = "1.8.1"
-dokka = "1.9.20"
-arrowGradleConfig = "0.12.0-rc.6"
-kotlinBinaryCompatibilityValidator = "0.14.0"
+kotlin = "2.1.0"
+coroutines = "1.10.1"
+dokka = "2.0.0"
+arrowGradleConfig = "0.12.0-rc.26"
+kotlinBinaryCompatibilityValidator = "0.17.0"
 knit = "0.5.0"
-ktor = "2.3.12"
-arrow = "1.2.4"
+ktor = "3.0.3"
+arrow = "2.0.0"
 
 [libraries]
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-knit = { module = "org.jetbrains.kotlinx:kotlinx-knit", version.ref = "knit" }
-ktor-core = {module = "io.ktor:ktor-server-host-common", version.ref = "ktor"}
-arrow-fx = {module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow"}
+ktor-core = { module = "io.ktor:ktor-server-host-common", version.ref = "ktor" }
+arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
 [plugins]
 arrowGradleConfig-formatter = { id = "io.arrow-kt.arrow-gradle-config-formatter", version.ref = "arrowGradleConfig" }

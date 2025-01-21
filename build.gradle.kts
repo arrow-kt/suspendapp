@@ -1,5 +1,8 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.net.URI
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -24,12 +27,16 @@ kotlin {
   // We set up custom targets rather than use Arrow Gradle Config for Kotlin,
   // Since we don't support all targets but only subset where having this behavior makes sense.
   jvm {
-    compilations.all {
-      kotlinOptions.jvmTarget = "1.8"
+    compilerOptions {
+      jvmTarget = JvmTarget.JVM_1_8
     }
   }
-  js(IR) {
+  js {
     nodejs()
+  }
+  wasmJs {
+    nodejs()
+    d8()
   }
 
   linuxArm64()
@@ -39,56 +46,39 @@ kotlin {
   macosX64()
   
   sourceSets {
-    val commonMain by getting {
+    applyDefaultHierarchyTemplate()
+
+    commonMain {
       dependencies {
         api(libs.coroutines)
       }
     }
-    
-    val jvmMain by getting
-    val jsMain by getting
-    val mingwX64Main by getting
-    val linuxX64Main by getting
-    val macosArm64Main by getting
-    val macosX64Main by getting
-    val linuxArm64Main by getting
+  }
+}
 
-    create("nativeMain") {
-      dependsOn(commonMain)
-      linuxX64Main.dependsOn(this)
-      macosArm64Main.dependsOn(this)
-      macosX64Main.dependsOn(this)
-      mingwX64Main.dependsOn(this)
-      linuxArm64Main.dependsOn(this)
+dokka {
+  dokkaPublications.html {
+    outputDirectory.set(rootDir.resolve("docs"))
+  }
+  moduleName.set("suspendapp")
+  dokkaSourceSets {
+    named("commonMain") {
+      includes.from("README.md")
+      perPackageOption {
+        matchingRegex.set(".*\\.unsafe.*")
+        suppress.set(true)
+      }
+      // externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
+      sourceLink {
+        localDirectory.set(file("src/commonMain/kotlin"))
+        remoteUrl.set(URI("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin"))
+        remoteLineSuffix.set("#L")
+      }
     }
   }
 }
 
 tasks {
-  withType<DokkaTask>().configureEach {
-    outputDirectory.set(rootDir.resolve("docs"))
-    moduleName.set("suspendapp")
-    dokkaSourceSets {
-      named("commonMain") {
-        includes.from("README.md")
-        perPackageOption {
-          matchingRegex.set(".*\\.unsafe.*")
-          suppress.set(true)
-        }
-        externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
-        sourceLink {
-          localDirectory.set(file("src/commonMain/kotlin"))
-          remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
-          remoteLineSuffix.set("#L")
-        }
-      }
-    }
-  }
-
-  withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
-  }
-  
   register<Delete>("cleanDocs") {
     val folder = file("docs").also { it.mkdir() }
     val docsContent = folder.listFiles().filter { it != folder }

@@ -22,7 +22,7 @@ object JsProcess : Process {
   override fun onShutdown(block: suspend () -> Unit): suspend () -> Unit {
     onSigTerm { code -> exitAfter(128 + code) { block() } }
     onSigInt { code -> exitAfter(128 + code) { block() } }
-    return { /* Nothing to unregister */}
+    return { /* Nothing to unregister */ }
   }
 
   override fun onSigTerm(block: suspend (code: Int) -> Unit) = onSignal("SIGTERM") { block(15) }
