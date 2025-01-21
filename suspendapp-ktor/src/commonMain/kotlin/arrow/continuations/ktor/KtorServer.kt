@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
  */
 suspend fun <
   TEngine : ApplicationEngine,
-  TConfiguration : ApplicationEngine.Configuration
+  TConfiguration : ApplicationEngine.Configuration,
 > ResourceScope.server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   port: Int = 80,
@@ -38,7 +38,7 @@ suspend fun <
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
   timeout: Duration = 500.milliseconds,
-  module: Application.() -> Unit = {}
+  module: Application.() -> Unit = {},
 ): EmbeddedServer<TEngine, TConfiguration> =
   install({
     embeddedServer(factory, host = host, port = port, watchPaths = watchPaths, module = module)
@@ -64,14 +64,14 @@ suspend fun <
  */
 suspend fun <
   TEngine : ApplicationEngine,
-  TConfiguration : ApplicationEngine.Configuration
+  TConfiguration : ApplicationEngine.Configuration,
 > ResourceScope.server(
   factory: ApplicationEngineFactory<TEngine, TConfiguration>,
   rootConfig: ServerConfig,
   configure: TConfiguration.() -> Unit = {},
   preWait: Duration = 30.seconds,
   grace: Duration = 500.milliseconds,
-  timeout: Duration = 500.milliseconds
+  timeout: Duration = 500.milliseconds,
 ): EmbeddedServer<TEngine, TConfiguration> =
   install({
     embeddedServer(factory, rootConfig, configure)
@@ -83,7 +83,7 @@ suspend fun <
 private suspend fun EmbeddedServer<*, *>.release(
   preWait: Duration,
   grace: Duration,
-  timeout: Duration
+  timeout: Duration,
 ) {
   if (!application.developmentMode) {
     environment.log.info(

@@ -24,10 +24,7 @@ interface Process : AutoCloseable {
    * longer ticks are, but slow enough that we don't interrupt often.
    * https://stackoverflow.com/questions/23622051/how-to-forcibly-keep-a-node-js-process-from-terminating
    */
-  fun runScope(
-    context: CoroutineContext,
-    block: suspend CoroutineScope.() -> Unit,
-  )
+  fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit)
 
   fun exit(code: Int): Unit
 
