@@ -34,7 +34,7 @@ object JsProcess : Process {
   private fun onSignal(signal: String, block: suspend () -> Unit) {
     @Suppress("UNUSED_VARIABLE")
     val provide: () -> Promise<JsAny?> = { GlobalScope.promise { block() } }
-    js("process.on(signal, function() {\n" + "  provide()\n" + "});")
+    processOn(provide)
   }
 
   private val jobs: MutableList<Job> = mutableListOf()
@@ -61,7 +61,7 @@ object JsProcess : Process {
   }
 
   override fun exit(code: Int) {
-    runCatching { js("process.exit(code)") }
+    runCatching { jsExit(code) }
   }
 
   override fun close() {
@@ -78,3 +78,16 @@ private inline fun Process.exitAfter(code: Int, block: () -> Unit): Unit =
     e.printStackTrace()
     exit(-1)
   }
+
+fun processOn(provide: () -> Promise<JsAny?>) {
+  js(
+    """
+    process.on(signal, function() {
+      provide()
+    });"""
+  )
+}
+
+fun jsExit(code: Int) {
+  js("process.exit(code);")
+}

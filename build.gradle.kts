@@ -1,8 +1,8 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.net.URI
 
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
@@ -56,27 +56,29 @@ kotlin {
   }
 }
 
-tasks {
-  withType<DokkaTask>().configureEach {
+dokka {
+  dokkaPublications.html {
     outputDirectory.set(rootDir.resolve("docs"))
-    moduleName.set("suspendapp")
-    dokkaSourceSets {
-      named("commonMain") {
-        includes.from("README.md")
-        perPackageOption {
-          matchingRegex.set(".*\\.unsafe.*")
-          suppress.set(true)
-        }
-        externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
-        sourceLink {
-          localDirectory.set(file("src/commonMain/kotlin"))
-          remoteUrl.set(uri("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin").toURL())
-          remoteLineSuffix.set("#L")
-        }
+  }
+  moduleName.set("suspendapp")
+  dokkaSourceSets {
+    named("commonMain") {
+      includes.from("README.md")
+      perPackageOption {
+        matchingRegex.set(".*\\.unsafe.*")
+        suppress.set(true)
+      }
+      // externalDocumentationLink("https://kotlinlang.org/api/kotlinx.coroutines/")
+      sourceLink {
+        localDirectory.set(file("src/commonMain/kotlin"))
+        remoteUrl.set(URI("https://github.com/arrow-kt/suspendapp/tree/main/src/commonMain/kotlin"))
+        remoteLineSuffix.set("#L")
       }
     }
   }
+}
 
+tasks {
   register<Delete>("cleanDocs") {
     val folder = file("docs").also { it.mkdir() }
     val docsContent = folder.listFiles().filter { it != folder }
