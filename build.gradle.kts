@@ -1,4 +1,7 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -28,8 +31,12 @@ kotlin {
       jvmTarget = JvmTarget.JVM_1_8
     }
   }
-  js(IR) {
+  js {
     nodejs()
+  }
+  wasmJs {
+    nodejs()
+    d8()
   }
 
   linuxArm64()
@@ -39,6 +46,8 @@ kotlin {
   macosX64()
   
   sourceSets {
+    applyDefaultHierarchyTemplate()
+
     commonMain {
       dependencies {
         api(libs.coroutines)
