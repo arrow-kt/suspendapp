@@ -24,7 +24,7 @@ public val SIGUSR1: Int? =
     else -> null
   }
 
-@OptIn(ExperimentalForeignApi::class, ExperimentalStdlibApi::class)
+@OptIn(ExperimentalForeignApi::class)
 private class NativeProcess : Process, AutoCloseable {
   private val job = SupervisorJob()
   private val scope = CoroutineScope(SIGNAL_DISPATCHER + job)
@@ -56,7 +56,7 @@ private class NativeProcess : Process, AutoCloseable {
     signal(code, handler)
   }
 
-  @OptIn(ExperimentalNativeApi::class, ExperimentalStdlibApi::class)
+  @OptIn(ExperimentalNativeApi::class)
   override fun close(): Unit = runBlocking {
     // TODO join all jobs, and re-throw all exceptions ??
     //   All jobs should've finished when the Enviroment is closed.
