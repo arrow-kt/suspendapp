@@ -14,7 +14,7 @@ import platform.posix.signal
 
 public actual fun process(): Process = NativeProcess()
 
-public val SIGINFO: Int = 29
+public const val SIGINFO: Int = 29
 
 @OptIn(ExperimentalNativeApi::class)
 public val SIGUSR1: Int? =
@@ -29,7 +29,7 @@ private class NativeProcess : Process, AutoCloseable {
   private val job = SupervisorJob()
   private val scope = CoroutineScope(SIGNAL_DISPATCHER + job)
 
-  override fun onShutdown(block: suspend () -> Unit): suspend () -> Unit {
+  override fun onShutdown(block: suspend () -> Unit): () -> Unit {
     onSigTerm { exitAfter(it + 128) { block() } }
     onSigInt { exitAfter(it + 128) { block() } }
     return { /* Nothing to unregister */ }
@@ -65,7 +65,7 @@ private class NativeProcess : Process, AutoCloseable {
       .getOrThrow()
   }
 
-  override fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit) =
+  override fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit): Unit =
     runBlocking(context, block)
 }
 

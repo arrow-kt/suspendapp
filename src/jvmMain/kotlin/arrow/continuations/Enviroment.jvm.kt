@@ -8,10 +8,10 @@ import kotlinx.coroutines.runBlocking
 import sun.misc.Signal
 import sun.misc.SignalHandler
 
-actual fun process(): Process = JvmProcess
+public actual fun process(): Process = JvmProcess
 
-object JvmProcess : Process {
-  override fun onShutdown(block: suspend () -> Unit): suspend () -> Unit {
+public object JvmProcess : Process {
+  override fun onShutdown(block: suspend () -> Unit): () -> Unit {
     val isShutdown = AtomicBoolean(false)
     fun shutdown() {
       if (!isShutdown.getAndSet(true))
@@ -34,10 +34,10 @@ object JvmProcess : Process {
     }
   }
 
-  override fun onSigTerm(block: suspend (code: Int) -> Unit) =
+  override fun onSigTerm(block: suspend (code: Int) -> Unit): Unit =
     addSignalHandler("SIGTERM") { block(15) }
 
-  override fun onSigInt(block: suspend (code: Int) -> Unit) =
+  override fun onSigInt(block: suspend (code: Int) -> Unit): Unit =
     addSignalHandler("SIGINT") { block(2) }
 
   private fun addSignalHandler(signal: String, action: suspend () -> Unit): Unit =
@@ -50,11 +50,11 @@ object JvmProcess : Process {
             handle?.handle(prev)
           }
         }
-    } catch (e: Throwable) {
+    } catch (_: Throwable) {
       /* Ignore */
     }
 
-  override fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit) =
+  override fun runScope(context: CoroutineContext, block: suspend CoroutineScope.() -> Unit): Unit =
     runBlocking(context, block)
 
   override fun exit(code: Int): Nothing = exitProcess(code)

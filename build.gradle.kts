@@ -24,6 +24,7 @@ allprojects {
 }
 
 kotlin {
+  explicitApiWarning()
   // We set up custom targets rather than use Arrow Gradle Config for Kotlin,
   // Since we don't support all targets but only subset where having this behavior makes sense.
   jvm {
