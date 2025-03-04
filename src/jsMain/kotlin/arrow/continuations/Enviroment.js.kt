@@ -26,7 +26,8 @@ public object JsProcess : Process {
     return { /* Nothing to unregister */ }
   }
 
-  override fun onSigTerm(block: suspend (code: Int) -> Unit): Unit = onSignal("SIGTERM") { block(15) }
+  override fun onSigTerm(block: suspend (code: Int) -> Unit): Unit =
+    onSignal("SIGTERM") { block(15) }
 
   override fun onSigInt(block: suspend (code: Int) -> Unit): Unit = onSignal("SIGINT") { block(2) }
 
@@ -56,9 +57,7 @@ public object JsProcess : Process {
               delay(1.hours)
             }
           }
-        runCatching { withContext(context, block) }
-          .also { keepAlive.cancelAndJoin() }
-          .getOrThrow()
+        runCatching { withContext(context, block) }.also { keepAlive.cancelAndJoin() }.getOrThrow()
       }
       .startCoroutine(Continuation(EmptyCoroutineContext) {})
   }

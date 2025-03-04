@@ -29,8 +29,7 @@ public fun SuspendApp(
   process.use { env ->
     env.runScope(context) {
       val result = supervisorScope {
-        val app =
-          async(start = CoroutineStart.LAZY, block = block)
+        val app = async(start = CoroutineStart.LAZY, block = block)
         val unregister =
           env.onShutdown {
             withTimeout(timeout) {
@@ -38,8 +37,7 @@ public fun SuspendApp(
               app.join()
             }
           }
-        runCatching { app.await() }
-          .also { unregister() }
+        runCatching { app.await() }.also { unregister() }
       }
       result.fold({ env.exit(0) }) { e ->
         if (e !is SuspendAppShutdown) {
