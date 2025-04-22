@@ -1,6 +1,7 @@
-# Module suspendapp
+# Module suspendapp [![Maven Central](https://img.shields.io/maven-central/v/io.arrow-kt/suspendapp?color=4caf50&label=latest%20release)](https://maven-badges.herokuapp.com/maven-central/io.arrow-kt/suspendapp)
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.arrow-kt/suspendapp?color=4caf50&label=latest%20release)](https://maven-badges.herokuapp.com/maven-central/io.arrow-kt/suspendapp)
+> [!WARNING]
+> Development of SuspendApp has moved to the [main Arrow repository](https://github.com/arrow-kt/arrow)
 
 ```kotlin
 dependencies {
