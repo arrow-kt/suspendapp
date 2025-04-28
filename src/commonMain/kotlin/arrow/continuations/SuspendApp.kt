@@ -19,7 +19,6 @@ import kotlinx.coroutines.*
  *   regardless of finalizers.
  * @param block the lambda of the actual application.
  */
-@OptIn(ExperimentalStdlibApi::class)
 fun SuspendApp(
   context: CoroutineContext = Dispatchers.Default,
   uncaught: (Throwable) -> Unit = Throwable::printStackTrace,
@@ -29,26 +28,24 @@ fun SuspendApp(
 ): Unit =
   process.use { env ->
     env.runScope(context) {
-      val job =
-        launch(start = CoroutineStart.LAZY) {
-          try {
-            block()
-            env.exit(0)
-          } catch (_: SuspendAppShutdown) {} catch (e: Throwable) {
-            uncaught(e)
-            env.exit(-1)
-          }
-        }
+      val app =
+        async(start = CoroutineStart.LAZY, block = block)
       val unregister =
         env.onShutdown {
           withTimeout(timeout) {
-            job.cancel(SuspendAppShutdown)
-            job.join()
+            app.cancel(SuspendAppShutdown)
+            app.join()
           }
         }
-      job.start()
-      job.join()
+      app.start()
+      val result = runCatching { app.await() }
       unregister()
+      result.fold({ env.exit(0) }) { e ->
+        if (e !is SuspendAppShutdown) {
+          uncaught(e)
+          env.exit(-1)
+        }
+      }
     }
   }
 
